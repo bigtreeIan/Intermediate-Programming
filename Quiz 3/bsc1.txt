@@ -1,0 +1,77 @@
+# Setup
+c-->from imp import reload
+c-->import point
+c-->reload(point)
+c-->from point import Point
+
+# Test init
+^-->Point(0.0,  1, 2)-->AssertionError
+^-->Point(0,  1.0, 2)-->AssertionError
+^-->Point(0,    1, 2.0)-->AssertionError
+^-->Point('x', 'y', 'z')-->AssertionError
+c-->x = Point(1,2,3)
+c-->y = Point(5,5,5)
+
+# Test repr/str
+e-->repr(x)-->Point(1,2,3)
+e-->repr(y)-->Point(5,5,5)
+e-->str(x)-->(x=1,y=2,z=3)
+e-->str(y)-->(x=5,y=5,z=5)
+
+# Test bool
+e-->bool(x)-->True
+e-->bool(y)-->True
+e-->bool(Point(0,0,0))-->False
+
+# Test +
+e-->x+x-->(x=2,y=4,z=6)
+e-->y+y-->(x=10,y=10,z=10)
+e-->x+y-->(x=6,y=7,z=8)
+e-->y+x-->(x=6,y=7,z=8)
+^-->x+1-->TypeError
+
+# Test *
+e-->2*x-->(x=2,y=4,z=6)
+e-->x*2-->(x=2,y=4,z=6)
+e-->2*y-->(x=10,y=10,z=10)
+e-->y*2-->(x=10,y=10,z=10)
+^-->2.*x-->TypeError
+^-->x*2.-->TypeError
+^-->x*y-->TypeError
+
+# Test <
+e-->x < x-->False
+e-->x < y-->True
+e-->x < Point(1,1,1)-->False
+e-->x < 1-->False
+e-->y < 17.4-->True
+^-->x < 'abc'-->TypeError
+^-->7.08 < y-->TypeError
+
+# Test getitem
+e-->x[0]-->1
+e-->x[1]-->2
+e-->x[2]-->3
+e-->y[0]-->5
+e-->y[1]-->5
+e-->y[2]-->5
+^-->x[1.]-->IndexError
+^-->y[-1]-->IndexError
+^-->y[3]-->IndexError
+e-->x['x']-->1
+e-->x['y']-->2
+e-->x['z']-->3
+e-->y['x']-->5
+e-->y['y']-->5
+e-->y['z']-->5
+^-->y['a']-->IndexError
+
+# Test __call__
+c-->x(3,2,1)
+e-->x-->(x=3,y=2,z=1)
+c-->y(0,0,0)
+e-->y-->(x=0,y=0,z=0)
+^-->x(1.0, 2, 3)-->AssertionError
+^-->x(1, 2.0, 3)-->AssertionError
+^-->x(1, 2, 3.0)-->AssertionError
+^-->x('x', 'y', 'z')-->AssertionError

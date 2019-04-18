@@ -1,0 +1,28 @@
+# Setup
+c-->from imp import reload
+c-->import history
+c-->reload(history)
+c-->from history import History
+c-->x=History()
+
+# Test __setattr__
+^-->x.mumble_prev_mumble = 1-->NameError
+c-->x.a = 1
+c-->x.a = 2
+c-->x.a = 3
+c-->x.b = 1
+c-->x.b = 2
+
+# Test __getattr__
+e-->x.a-->3
+^-->x.q__prev-->NameError # a new test
+e-->x.a_prev-->2
+e-->x.a_prev_prev-->1
+e-->x.a_prev_prev_prev-->None
+^-->x.c_prev_prev-->NameError
+
+# Test __getitem__
+^-->x[1]-->IndexError
+==-->x[0]-->{'a':3,'b':2}
+==-->x[-1]-->{'a':2,'b':1}
+==-->x[-2]-->{'a':1,'b':None}

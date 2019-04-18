@@ -1,0 +1,2 @@
+page_sequence <= integer[-integer|-integer/integer]
+pages         <= page_sequence{,page_sequence}

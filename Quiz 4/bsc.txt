@@ -1,0 +1,53 @@
+# Setup
+c-->from imp import reload
+c-->import q4solution
+c-->reload(q4solution)
+c-->from goody import irange
+c-->from predicate import is_prime
+c-->from q4solution import hide, primes, peaks, compress, stop_when, start_when, Ordered, compress, alternate
+
+# Test peak
+e-->peaks([0,1,-1,3,8,4,3,5,4,3,8])-->[1, 8, 5]
+e-->peaks([5,2,4,9,6,1,3,8,0,7])-->[9, 8]
+e-->peaks([1,2,3,4,5])-->[]
+e-->peaks([0,1])-->[]
+e-->peaks(int(is_prime(p)) for p in irange(1,20))-->[1, 1, 1, 1, 1, 1]
+
+# Test compress
+e-->''.join([str(v) for v in compress('abcdefghijklmnopqrstuvwxyz',[is_prime(i) for i in irange(1,26)])])-->bcegkmqsw
+e-->''.join([str(v) for v in compress('abcdefghijklmnopqrstuvwxyz',(is_prime(i) for i in irange(1,26)))])-->bcegkmqsw
+
+# Test stop_when
+e-->''.join([str(v) for v in stop_when('abcdefghijk', lambda x : x >='d')])-->abc
+e-->''.join([str(v) for v in stop_when(hide('abcdefghijk'), lambda x : x >='d')])-->abc
+e-->''.join([str(v) for v in stop_when(hide('abcdefghijk'), lambda x : x >'f')])-->abcdef
+
+# Test start_when
+e-->''.join([str(v) for v in start_when('abcdefghijk', lambda x : x >='d')])-->defghijk
+e-->''.join([str(v) for v in start_when(hide('abcdefghijk'), lambda x : x >='d')])-->defghijk
+e-->''.join([str(v) for v in start_when(hide('abcdefghijk'), lambda x : x >'f')])-->ghijk
+
+# Test alternate_all
+e-->''.join([str(v) for v in alternate('abcde','fg','hijk')])-->afhbgic
+e-->''.join([str(v) for v in alternate(hide('abcde'),hide('fg'),hide('hijk'))])-->afhbgic
+e-->''.join([str(v) for v in alternate(hide('fg'),hide('hijk'),hide('abcde'))])-->fhagib
+e-->''.join([str(v) for v in alternate(primes(20), hide('fghi'),hide('jk'))])-->2fj3gk5h
+
+# Test Ordered
+c-->s = {1, 2, 4, 8, 16}
+c-->i = iter(Ordered(s))
+==-->[next(i), next(i), s.remove(8), next(i), next(i), s.add(32), next(i)]-->[1, 2, None, 4, 16, None, 32]
+c-->s = {1, 2, 4, 8, 16}
+c-->i = iter(Ordered(s))
+==-->[next(i), next(i), next(i), s.add(3), next(i), s.add(10), s.add(32), next(i), next(i), next(i)]-->[1, 2, 4, None, 8, None, None, 10, 16, 32]
+==-->s-->{1, 2, 3, 4, 8, 10, 16, 32}
+c-->s = {1, 2, 4, 8, 16}
+c-->i = iter(Ordered(s))
+==-->[next(i), s.remove(2), s.remove(4), s.remove(8), next(i)]-->[1, None, None, None, 16]
+c-->s = {1, 2, 4, 8, 16}
+c-->i = iter(Ordered(s))
+==-->[next(i), s.remove(2), next(i), s.remove(4), s.remove(8), next(i)]-->[1, None, 4, None, None, 16]
+==-->s-->{1, 16}
+c-->s = set()
+c-->i = iter(Ordered(s))
+^-->next(i)-->StopIteration
