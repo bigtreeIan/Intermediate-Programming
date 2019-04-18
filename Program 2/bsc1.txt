@@ -1,0 +1,305 @@
+# Setup
+c-->from imp import reload
+c-->import graph
+c-->reload(graph)
+c-->from graph import Graph, GraphError
+
+# Test __init__
+c-->g = Graph( (lambda x : type(x) is int) )
+==-->g.edges-->{}
+c-->g = Graph( (lambda x : type(x) is int), 'a','b','c')
+==-->g.edges-->{'a':{}, 'b': {}, 'c': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),'e',('b','a',2),('d','b',2),('d','c',1))
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is str), ('a','b','1'),('a','c','3'),('b','a','2'),('d','b','2'),('d','c','1'),'e')
+==-->g.edges-->{'d': {'b': '2', 'c': '1'}, 'b': {'a': '2'}, 'c': {}, 'a': {'b': '1', 'c': '3'}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','a',1),('b','b',2),('c','c',3))
+==-->g.edges-->{'a': {'a': 1}, 'b': {'b': 2}, 'c': {'c': 3}}
+^-->g = Graph( (lambda x : type(x) is int), 1)-->GraphError
+^-->g = Graph( (lambda x : type(x) is int), ('a','b'))-->GraphError
+^-->g = Graph( (lambda x : type(x) is int), ('a','b',1.))-->GraphError
+^-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',2),('a','b',1))-->GraphError
+^-->g = Graph( (lambda x : type(x) is int), 'a','b','c','a')-->GraphError
+^-->g = Graph( (lambda x : type(x) is int), ('a','b',1),'b')-->GraphError
+
+# Test __str__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+e-->repr(str(g))-->'\nGraph:\n  a: b(1), c(3)\n  b: a(2)\n  c:\n  d: b(2), c(1)\n  e:'
+c-->g = Graph( (lambda x : type(x) is str), ('a','b','ab'),('a','c','ac'),('b','a','ba'),('d','b','db'),('d','c','dc'),'e')
+e-->repr(str(g))-->'\nGraph:\n  a: b(ab), c(ac)\n  b: a(ba)\n  c:\n  d: b(db), c(dc)\n  e:'
+c-->g = Graph( (lambda x : type(x) is int), ('a','c',3),('d','c',1),'e')
+e-->repr(str(g))-->'\nGraph:\n  a: c(3)\n  c:\n  d: c(1)\n  e:'
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e',('a','d',14),('a','e',10),('d','e',6))
+e-->repr(str(g))-->'\nGraph:\n  a: b(1), c(3), d(14), e(10)\n  b: a(2)\n  c:\n  d: b(2), c(1), e(6)\n  e:'
+
+# Test __getitem__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','f',5),('b','a',2),('d','b',2),('d','c',1),'e')
+==-->g['a']-->{'b': 1, 'c': 3, 'f': 5}
+==-->g['b']-->{'a': 2}
+==-->g['c']-->{}
+==-->g['d']-->{'b': 2, 'c': 1}
+==-->g['e']-->{}
+^-->g[1]-->GraphError
+^-->g['a','b',1]-->GraphError
+e-->g['a','b']-->1
+e-->g['a','c']-->3
+e-->g['b','a']-->2
+e-->g['d','b']-->2
+e-->g['d','c']-->1
+^-->g['g']-->GraphError
+^-->g['d','a']-->GraphError
+^-->g['x','a']-->GraphError
+^-->g['x','x']-->GraphError
+
+# Test __setitem__
+c-->g = Graph( (lambda x : type(x) is int) )
+c-->g['a','b'] = 100
+==-->g.edges-->{'b': {}, 'a': {'b': 100}}
+c-->g['a','b'] = 1
+==-->g.edges-->{'b': {}, 'a': {'b': 1}}
+c-->g['a','c'] = 3
+==-->g.edges-->{'b': {}, 'c': {}, 'a': {'b': 1, 'c': 3}}
+c-->g['a','f'] = 5
+==-->g.edges-->{'f': {}, 'b': {}, 'c': {}, 'a': {'f': 5, 'b': 1, 'c': 3}}
+c-->g['b','a'] = 2
+==-->g.edges-->{'f': {}, 'b': {'a': 2}, 'c': {}, 'a': {'f': 5, 'b': 1, 'c': 3}}
+c-->g['d','b'] = 2
+==-->g.edges-->{'f': {}, 'd': {'b': 2}, 'b': {'a': 2}, 'c': {}, 'a': {'f': 5, 'b': 1, 'c': 3}}
+c-->g['d','c'] = 1
+==-->g.edges-->{'f': {}, 'd': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'f': 5, 'b': 1, 'c': 3}}
+^-->g[1]-->GraphError
+^-->g['a','b',2]-->GraphError
+^-->g['a','b'] = '100'-->GraphError
+
+# Test node_count
+c-->g = Graph( (lambda x : type(x) is int) )
+e-->g.node_count()-->0
+c-->g = Graph( (lambda x : type(x) is int), 'a','b','c' )
+e-->g.node_count()-->3
+c-->g = Graph( (lambda x : type(x) is int), ('a','c',3),('d','c',1) )
+e-->g.node_count()-->3
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','f',5),('b','a',2),('d','b',2),'e')
+e-->g.node_count()-->6
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','f',5),('b','a',2),('d','b',2),('d','c',1),'e')
+e-->len(g)-->6
+
+# Test __len__
+c-->g = Graph( (lambda x : type(x) is int) )
+e-->len(g)-->0
+c-->g = Graph( (lambda x : type(x) is int), 'a','b','c' )
+e-->len(g)-->0
+c-->g = Graph( (lambda x : type(x) is int), ('a','c',3),('d','c',1) )
+e-->len(g)-->2
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','f',5),('b','a',2),('d','b',2),'e')
+e-->len(g)-->5
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','f',5),('b','a',2),('d','b',2),('d','c',1),'e')
+e-->len(g)-->6
+
+# Test out_degree/in_degree
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+e-->g.out_degree('a')-->2
+e-->g.out_degree('b')-->1
+e-->g.out_degree('c')-->0
+e-->g.out_degree('d')-->2
+e-->g.out_degree('e')-->0
+e-->g.in_degree('a')-->1
+e-->g.in_degree('b')-->2
+e-->g.in_degree('c')-->2
+e-->g.in_degree('d')-->0
+e-->g.in_degree('e')-->0
+^-->g.out_degree(1)-->GraphError
+^-->g.in_degree(1)-->GraphError
+^-->g.in_degree('x')-->GraphError
+^-->g.out_degree('x')-->GraphError
+
+# Test __contains__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+e-->'a' in g-->True
+e-->'d' in g-->True
+e-->'x' in g-->False
+e-->('b','a') in g-->True
+e-->('d','b') in g-->True
+e-->('a','d') in g-->False
+e-->('b','a',2) in g-->True
+e-->('b','a',3) in g-->False
+e-->('a','d',2) in g-->False
+^-->1 in g-->GraphError
+^-->('a','b',1,2) in g-->GraphError
+
+# Test __delitem__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['a','b']
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {'c': 3}}
+c-->del g['a','b']
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {'c': 3}}
+c-->del g['d','c']
+==-->g.edges-->{'d': {'b': 2}, 'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {'c': 3}}
+c-->del g['d','b']
+==-->g.edges-->{'d': {}, 'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {'c': 3}}
+c-->del g['a','c']
+==-->g.edges-->{'d': {}, 'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {}}
+c-->del g['b','a']
+==-->g.edges-->{'d': {}, 'b': {}, 'e': {}, 'c': {}, 'a': {}}
+c-->del g['a']
+==-->g.edges-->{'d': {}, 'b': {}, 'e': {}, 'c': {}}
+c-->del g['a']
+==-->g.edges-->{'d': {}, 'b': {}, 'e': {}, 'c': {}}
+c-->del g['c']
+==-->g.edges-->{'d': {}, 'b': {}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['a']
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {}, 'e': {}, 'c': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['b']
+==-->g.edges-->{'d': {'c': 1}, 'e': {}, 'c': {}, 'a': {'c': 3}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['c']
+==-->g.edges-->{'d': {'b': 2}, 'b': {'a': 2}, 'e': {}, 'a': {'b': 1}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['d']
+==-->g.edges-->{'b': {'a': 2}, 'e': {}, 'c': {}, 'a': {'b': 1, 'c': 3}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->del g['e']
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}}
+^-->del g[1]-->GraphError
+^-->del g['a',1]-->GraphError
+^-->del g['a','b',1]-->GraphError
+
+# Test __call__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+==-->g('a')-->{'b': 2}
+==-->g('b')-->{'d': 2, 'a': 1}
+==-->g('c')-->{'d': 1, 'a': 3}
+==-->g('d')-->{}
+^-->g('f')-->GraphError
+^-->g(('a','b'))-->GraphError
+
+# Test clear
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->g.clear()
+==-->g.edges-->{}
+c-->g.clear()
+==-->g.edges-->{}
+
+# Test dump
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->g.dump(open('g.txt','w'),':',str)
+e-->repr(open('g.txt').read())-->'a:b:1:c:3\nb:a:2\nc\nd:b:2:c:1\ne\n'
+c-->g.dump(open('g.txt','w'),';')
+e-->repr(open('g.txt').read())-->'a;b;1;c;3\nb;a;2\nc\nd;b;2;c;1\ne\n'
+
+# Test load
+c-->g = Graph( (lambda x : type(x) is int) )
+c-->g.load(open('gread1.txt'),':',int)
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+c-->g.load(open('gread2.txt'),';',int)
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is str) )
+c-->g.load(open('gread1.txt'),':',str)
+==-->g.edges-->{'d': {'b': '2', 'c': '1'}, 'b': {'a': '2'}, 'c': {}, 'a': {'b': '1', 'c': '3'}, 'e': {}}
+
+# Test reverse
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+c-->f = g.reverse()
+==-->f.edges-->{'b': {'a': 1, 'd': 2}, 'e': {}, 'a': {'b': 2}, 'c': {'a': 3, 'd': 1}, 'd': {}}
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('a','d',14),('a','e',10),('b','a',2),('d','b',2),('d','c',1),('d','e',6))
+c-->f = g.reverse()
+==-->f.edges-->{'c': {'a': 3, 'd': 1}, 'a': {'b': 2}, 'e': {'a': 10, 'd': 6}, 'b': {'a': 1, 'd': 2}, 'd': {'a': 14}}
+^-->f['a','b'] = '2'-->GraphError
+
+# Test natural_subgraph
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+==-->g.natural_subgraph('a').edges-->{'a': {}}
+==-->g.natural_subgraph('a','b').edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+==-->g.natural_subgraph('a','b','c').edges-->{'c': {}, 'a': {'c': 3, 'b': 1}, 'b': {'a': 2}}
+==-->g.natural_subgraph('a','b','c','d').edges-->{'c': {}, 'a': {'c': 3, 'b': 1}, 'd': {'c': 1, 'b': 2}, 'b': {'a': 2}}
+==-->g.natural_subgraph('a','b','c','d','e').edges-->{'c': {}, 'a': {'c': 3, 'b': 1}, 'd': {'c': 1, 'b': 2}, 'b': {'a': 2}, 'e': {}}
+==-->g.natural_subgraph('a','b','c','d','e','x').edges-->{'c': {}, 'a': {'c': 3, 'b': 1}, 'd': {'c': 1, 'b': 2}, 'b': {'a': 2}, 'e': {}}
+==-->g.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1, 'c': 3}, 'e': {}}
+^-->g.natural_subgraph(1)-->GraphError
+^-->g.natural_subgraph(('a','b'))-->GraphError
+
+# Test __iter__
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+==-->[v for v in g]-->[('a', 'b', 1), ('b', 'a', 2)]
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',1),('a','c',3),('b','a',2),('d','b',2),('d','c',1),'e')
+==-->[v for v in g]-->[('a', 'b', 1), ('a', 'c', 3), ('b', 'a', 2), ('d', 'b', 2), ('d', 'c', 1),'e']
+c-->g = Graph( (lambda x : type(x) is int), ('a','b',2),('b','a',1),('b','d',2),('c','a',3),('c','d',1),'e')
+==-->[v for v in g]-->[('a', 'b', 2), ('b', 'a', 1), ('b', 'd', 2), ('c', 'a', 3), ('c', 'd', 1), 'e']
+c-->g = Graph( (lambda x : type(x) is int), ('a','c',3),('d','c',1),'b','e')
+==-->[v for v in g]-->[('a', 'c', 3), 'b', ('d', 'c', 1), 'e']
+
+# Test == and /=
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g2 = Graph( (lambda x : type(x) is int), ('d','b',2),('d','c',1),'e')
+c-->g3 = Graph( (lambda x : type(x) is int), ('d','b',2),('d','c',1),'e')
+e-->g2 == g2-->True
+e-->g1 == g2-->False
+e-->g2 == g3-->True
+e-->g2 != g2-->False
+e-->g1 != g2-->True
+e-->g2 != g3-->False
+
+# Test <=
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+e-->g1 <= g1-->True
+c-->g2 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2),'x' )
+e-->g1 <= g2-->True
+e-->g2 <= g1-->False
+c-->g2 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',-22) )
+e-->g1 <= g2-->False
+
+# Test +
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g2 = Graph( (lambda x : type(x) is int), ('d','b',2),('d','c',1),'e')
+==-->(g1+g2).edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1}, 'e': {}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+==-->g2.edges-->{'d': {'b': 2, 'c': 1}, 'b': {}, 'c': {}, 'e': {}}
+
+==-->(g1+'x').edges-->{'a': {'b': 1}, 'b': {'a': 2}, 'x': {}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+==-->('x'+g1).edges-->{'a': {'b': 1}, 'b': {'a': 2}, 'x': {}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+
+==-->(g1 + ('a','x',2)).edges-->{'a': {'b': 1, 'x': 2}, 'b': {'a': 2}, 'x': {}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+==-->(g1 + ('a','b',2)).edges-->{'a': {'b': 2}, 'b': {'a': 2}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+
+==-->(('a','x',2) + g1).edges-->{'a': {'b': 1, 'x': 2}, 'b': {'a': 2}, 'x': {}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+==-->(('a','b',2) + g1).edges-->{'a': {'b': 2}, 'b': {'a': 2}}
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}}
+
+^-->g1+1-->GraphError
+^-->g1+('x','y','z')-->GraphError
+
+# Test +=
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g2 = Graph( (lambda x : type(x) is int), ('d','b',2),('d','c',1),'e')
+c-->g1 += g2
+==-->g1.edges-->{'d': {'b': 2, 'c': 1}, 'b': {'a': 2}, 'c': {}, 'a': {'b': 1}, 'e': {}}
+==-->g2.edges-->{'d': {'b': 2, 'c': 1}, 'b': {}, 'c': {}, 'e': {}}
+
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g1 += 'x'
+==-->g1.edges-->{'a': {'b': 1}, 'b': {'a': 2}, 'x': {}}
+
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g1 += ('a','x',2)
+==-->g1.edges-->{'a': {'b': 1, 'x': 2}, 'b': {'a': 2}, 'x': {}}
+c-->g1 = Graph( (lambda x : type(x) is int), ('a','b',1),('b','a',2) )
+c-->g1 += ('a','b',2)
+==-->g1.edges-->{'a': {'b': 2}, 'b': {'a': 2}}
+
+^-->g1+=1-->GraphError
+^-->g1+=('x','y','z')-->GraphError
+
+# Test __setattr__
+c-->g = Graph( (lambda x : type(x) is int) )
+^-->g.edges = {}-->AssertionError
+^-->g.is_legal_edge_value = lambda x : True-->AssertionError
+^-->g.x = 1-->AssertionError

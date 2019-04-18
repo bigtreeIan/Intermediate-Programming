@@ -1,0 +1,41 @@
+# Setup
+c-->from imp import reload
+c-->import instantrunoff
+c-->reload(instantrunoff)
+# Test read_voter_preference
+c-->v1 = instantrunoff.read_voter_preferences(open('votepref1.txt'))
+==-->v1-->{'A': ['X', 'Y', 'Z'], 'E': ['Z', 'X', 'Y'], 'B': ['Y', 'Z', 'X'], 'C': ['Y', 'Z', 'X'], 'D': ['Z', 'X', 'Y']}
+c-->v2 = instantrunoff.read_voter_preferences(open('votepref2.txt'))
+==-->v2-->{'A': ['X', 'Y', 'Z'], 'H': ['Y', 'Z', 'X'], 'B': ['X', 'Z', 'Y'], 'F': ['X', 'Z', 'Y'], 'E': ['Z', 'Y', 'X'], 'G': ['X', 'Z', 'Y'], 'C': ['Y', 'X', 'Z'], 'D': ['Y', 'Z', 'X']}
+c-->v3 = instantrunoff.read_voter_preferences(open('votepref3.txt'))
+==-->v3-->{'A': ['X', 'Y', 'Z'], 'H': ['Z', 'Y', 'X'], 'B': ['X', 'Y', 'Z'], 'F': ['Y', 'Z', 'X'], 'E': ['Y', 'Z', 'X'], 'G': ['Y', 'Z', 'X'], 'C': ['X', 'Y', 'Z'], 'I': ['Z', 'Y', 'X'], 'D': ['X', 'Y', 'Z']}
+# Test dict_as_str
+c-->v1 = {'A': ['X', 'Y', 'Z'], 'E': ['Z', 'X', 'Y'], 'B': ['Y', 'Z', 'X'], 'C': ['Y', 'Z', 'X'], 'D': ['Z', 'X', 'Y']}
+e-->repr(instantrunoff.dict_as_str(v1))-->"  A -> ['X', 'Y', 'Z']\n  B -> ['Y', 'Z', 'X']\n  C -> ['Y', 'Z', 'X']\n  D -> ['Z', 'X', 'Y']\n  E -> ['Z', 'X', 'Y']\n"
+c-->d = dict(X=1,Y=3,Z=2)
+e-->repr(instantrunoff.dict_as_str(d))-->'  X -> 1\n  Y -> 3\n  Z -> 2\n'
+e-->repr(instantrunoff.dict_as_str(d,key=None,reverse=True))-->'  Z -> 2\n  Y -> 3\n  X -> 1\n'
+e-->repr(instantrunoff.dict_as_str(d,key=lambda x : d[x]))-->'  X -> 1\n  Z -> 2\n  Y -> 3\n'
+e-->repr(instantrunoff.dict_as_str(d,key=lambda x : d[x],reverse=True))-->'  Y -> 3\n  Z -> 2\n  X -> 1\n'
+# Test evaluate_ballot
+c-->v1 = {'A': ['X', 'Y', 'Z'], 'E': ['Z', 'X', 'Y'], 'B': ['Y', 'Z', 'X'], 'C': ['Y', 'Z', 'X'], 'D': ['Z', 'X', 'Y']}
+==-->instantrunoff.evaluate_ballot(v1,{'X','Y','Z'})-->dict(X=1,Y=2,Z=2)
+==-->instantrunoff.evaluate_ballot(v1,{'Y','Z'})-->dict(Y=3,Z=2)
+c-->v2 = {'A': ['X', 'Y', 'Z'], 'H': ['Y', 'Z', 'X'], 'B': ['X', 'Z', 'Y'], 'F': ['X', 'Z', 'Y'], 'E': ['Z', 'Y', 'X'], 'G': ['X', 'Z', 'Y'], 'C': ['Y', 'X', 'Z'], 'D': ['Y', 'Z', 'X']}
+==-->instantrunoff.evaluate_ballot(v2,{'X','Y','Z'})-->dict(X=4,Y=3,Z=1)
+==-->instantrunoff.evaluate_ballot(v2,{'X','Y'})-->dict(X=4,Y=4)
+c-->v3 = {'A': ['X', 'Y', 'Z'], 'H': ['Z', 'Y', 'X'], 'B': ['X', 'Y', 'Z'], 'F': ['Y', 'Z', 'X'], 'E': ['Y', 'Z', 'X'], 'G': ['Y', 'Z', 'X'], 'C': ['X', 'Y', 'Z'], 'I': ['Z', 'Y', 'X'], 'D': ['X', 'Y', 'Z']}
+==-->instantrunoff.evaluate_ballot(v3,{'X','Y','Z'})-->dict(X=4,Y=3,Z=2)
+==-->instantrunoff.evaluate_ballot(v3,{'X','Y'})-->dict(X=4,Y=5)
+# Test remaining_candidates
+==-->instantrunoff.remaining_candidates( dict(X=1,Y=2,Z=2) )-->{'Y','Z'}
+==-->instantrunoff.remaining_candidates( dict(Y=3,Z=2) )-->{'Y'}
+==-->instantrunoff.remaining_candidates( dict(X=4,Y=3,Z=1) )-->{'X','Y'}
+==-->instantrunoff.remaining_candidates( dict(X=4,Y=4) )-->set()
+==-->instantrunoff.remaining_candidates( dict(X=4,Y=3,Z=2) )-->{'X','Y'}
+==-->instantrunoff.remaining_candidates( dict(X=4,Y=5) )-->{'Y'}
+# Test run_election
+e-->instantrunoff.run_election(open('votepref1.txt'))-->{'Y'}
+e-->instantrunoff.run_election(open('votepref2.txt'))-->set()
+e-->instantrunoff.run_election(open('votepref3.txt'))-->{'Y'}
+e-->instantrunoff.run_election(open('votepref4.txt'))-->{'x'}

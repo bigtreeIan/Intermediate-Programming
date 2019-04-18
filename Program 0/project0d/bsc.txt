@@ -1,0 +1,22 @@
+c-->from math import factorial
+c-->from fact import fact1, fact2
+#fact1 now been tested
+^-->fact1('a')-->TypeError
+^-->fact1(-1)-->ValueError
+e-->fact1(0)-->1
+e-->fact1(5)-->120
+==-->fact1(10)-->factorial(10)
+==-->fact1(10)-->10*9*8*7*6*5*4*3*2*1
+==-->fact1(100)-->100*fact1(99)
+#fact2 now being tested
+^-->fact2('a')-->TypeError
+^-->fact2(-1)-->ValueError
+e-->fact2(0)-->1
+e-->fact2(5)-->120
+==-->fact2(10)-->factorial(10)
+==-->fact2(10)-->10*9*8*7*6*5*4*3*2*1
+==-->fact2(100)-->100*fact2(99)
+#sets are now being tested
+c-->x = {'a', 'b', 'c', 'd'}
+c-->x.remove('b')
+==-->x-->{'a', 'c', 'd'}

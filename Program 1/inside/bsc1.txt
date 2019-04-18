@@ -1,0 +1,23 @@
+# Setup
+c-->from imp import reload
+c-->import reachable
+c-->reload(reachable)
+# Test read_graph
+c-->g1 = reachable.read_graph(open('graph1.txt'))
+==-->g1-->{'e': {'d'}, 'a': {'b', 'c'}, 'd': {'g'}, 'b': {'d'}, 'c': {'f', 'e'}, 'f': {'g', 'd'}}
+c-->g2 = reachable.read_graph(open('graph2.txt'))
+==-->g2-->{'a': {'d', 'b', 'c'}, 'i': {'e', 'd'}, 'b': {'h'}, 'c': {'e'}, 'h': {'b', 'e'}, 'g': {'d'}, 'f': {'b'}, 'e': {'g', 'j', 'f'}}
+c-->g3 = reachable.read_graph(open('graph3.txt'))
+==-->g3-->{'e': {'d'}, 'a': {'b', 'c'}, 'd': {'g'}, 'b': {'d'}, 'c': {'f', 'e'}, 'f': {'g', 'd'}}
+# Test graph_as_str
+c-->g1 = {'e': {'d'}, 'a': {'b', 'c'}, 'd': {'g'}, 'b': {'d'}, 'c': {'f', 'e'}, 'f': {'g', 'd'}}
+e-->repr(reachable.graph_as_str(g1))-->"  a -> ['b', 'c']\n  b -> ['d']\n  c -> ['e', 'f']\n  d -> ['g']\n  e -> ['d']\n  f -> ['d', 'g']\n"
+c-->g2 = {'a': {'d', 'b', 'c'}, 'i': {'e', 'd'}, 'b': {'h'}, 'c': {'e'}, 'h': {'b', 'e'}, 'g': {'d'}, 'f': {'b'}, 'e': {'g', 'j', 'f'}}
+e-->repr(reachable.graph_as_str(g2))-->"  a -> ['b', 'c', 'd']\n  b -> ['h']\n  c -> ['e']\n  e -> ['f', 'g', 'j']\n  f -> ['b']\n  g -> ['d']\n  h -> ['b', 'e']\n  i -> ['d', 'e']\n"
+# Test reachable
+c-->g1 = {'e': {'d'}, 'a': {'b', 'c'}, 'd': {'g'}, 'b': {'d'}, 'c': {'f', 'e'}, 'f': {'g', 'd'}}
+==-->reachable.reachable(g1,'a')-->{'d', 'e', 'b', 'g', 'f', 'a', 'c'}
+==-->reachable.reachable(g1,'c')-->{'f', 'e', 'g', 'd', 'c'}
+c-->g2 = {'a': {'d', 'b', 'c'}, 'i': {'e', 'd'}, 'b': {'h'}, 'c': {'e'}, 'h': {'b', 'e'}, 'g': {'d'}, 'f': {'b'}, 'e': {'g', 'j', 'f'}}
+==-->reachable.reachable(g2,'a')-->{'c', 'e', 'b', 'h', 'g', 'a', 'f', 'j', 'd'}
+==-->reachable.reachable(g2,'c')-->{'d', 'c', 'b', 'h', 'g', 'f', 'j', 'e'}

@@ -1,0 +1,41 @@
+# Setup
+c-->from imp import reload
+c-->import ndfa
+c-->reload(ndfa)
+# Test read_ndfa
+c-->ndfa1 = ndfa.read_ndfa(open('ndfaendin01.txt'))
+==-->ndfa1-->{'end': {}, 'start': {'1': {'start'}, '0': {'start', 'near'}}, 'near': {'1': {'end'}}}
+c-->ndfa2 = ndfa.read_ndfa(open('ndfatrain.txt'))
+==-->ndfa2-->{'pass1': {'p': {'pass2'}, 'd': {'rest'}}, 'pass2': {'p': {'pass3'}, 'd': {'rest'}}, 'start': {'e': {'engine'}}, 'pass3': {'p': {'pass4'}, 'd': {'rest'}}, 'engine': {'e': {'engine', 'rest'}}, 'pass4': {'d': {'rest'}}, 'box1': {'b': {'rest'}}, 'rest': {'p': {'pass1'}, 'b': {'box1'}, 'c': {'done'}}}
+c-->ndfa3 = ndfa.read_ndfa(open('ndfare.txt'))
+==-->ndfa3-->{'last': {}, '1': {'a': {'1', '2'}}, '3': {'d': {'last', 'start'}}, 'start': {'a': {'1', '2'}, 'b': {'2'}, 'c': {'3'}}, '2': {'c': {'3'}}}
+# Test ndfa_as_str
+c-->ndfa1 = {'end': {}, 'start': {'1': {'start'}, '0': {'start', 'near'}}, 'near': {'1': {'end'}}}
+e-->repr(ndfa.ndfa_as_str(ndfa1))-->"  end transitions: []\n  near transitions: [('1', ['end'])]\n  start transitions: [('0', ['near', 'start']), ('1', ['start'])]\n"
+c-->ndfa2 = {'pass1': {'p': {'pass2'}, 'd': {'rest'}}, 'pass2': {'p': {'pass3'}, 'd': {'rest'}}, 'start': {'e': {'engine'}}, 'pass3': {'p': {'pass4'}, 'd': {'rest'}}, 'engine': {'e': {'engine', 'rest'}}, 'pass4': {'d': {'rest'}}, 'box1': {'b': {'rest'}}, 'rest': {'p': {'pass1'}, 'b': {'box1'}, 'c': {'done'}}}
+e-->repr(ndfa.ndfa_as_str(ndfa2))-->"  box1 transitions: [('b', ['rest'])]\n  engine transitions: [('e', ['engine', 'rest'])]\n  pass1 transitions: [('d', ['rest']), ('p', ['pass2'])]\n  pass2 transitions: [('d', ['rest']), ('p', ['pass3'])]\n  pass3 transitions: [('d', ['rest']), ('p', ['pass4'])]\n  pass4 transitions: [('d', ['rest'])]\n  rest transitions: [('b', ['box1']), ('c', ['done']), ('p', ['pass1'])]\n  start transitions: [('e', ['engine'])]\n"
+c-->ndfa3 = {'last': {}, '1': {'a': {'1', '2'}}, '3': {'d': {'last', 'start'}}, 'start': {'a': {'1', '2'}, 'b': {'2'}, 'c': {'3'}}, '2': {'c': {'3'}}}
+e-->repr(ndfa.ndfa_as_str(ndfa3))-->"  1 transitions: [('a', ['1', '2'])]\n  2 transitions: [('c', ['3'])]\n  3 transitions: [('d', ['last', 'start'])]\n  last transitions: []\n  start transitions: [('a', ['1', '2']), ('b', ['2']), ('c', ['3'])]\n"
+# Test process
+c-->ndfa1 = {'end': {}, 'start': {'1': {'start'}, '0': {'start', 'near'}}, 'near': {'1': {'end'}}}
+==-->ndfa.process(ndfa1,'start','1;0;1;1;0;1'.split(';'))-->['start', ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'}), ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'})]
+==-->ndfa.process(ndfa1,'start','1;0;1;1;0;0'.split(';'))-->['start', ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'}), ('1', {'start'}), ('0', {'start', 'near'}), ('0', {'start', 'near'})]
+c-->ndfa2 = {'pass1': {'p': {'pass2'}, 'd': {'rest'}}, 'pass2': {'p': {'pass3'}, 'd': {'rest'}}, 'start': {'e': {'engine'}}, 'pass3': {'p': {'pass4'}, 'd': {'rest'}}, 'engine': {'e': {'engine', 'rest'}}, 'pass4': {'d': {'rest'}}, 'box1': {'b': {'rest'}}, 'rest': {'p': {'pass1'}, 'b': {'box1'}, 'c': {'done'}}}
+==-->ndfa.process(ndfa2,'start','e;e;e;b;b;p;d;p;p;p;d;b;b;c'.split(';'))-->['start', ('e', {'engine'}), ('e', {'engine', 'rest'}), ('e', {'engine', 'rest'}), ('b', {'box1'}), ('b', {'rest'}), ('p', {'pass1'}), ('d', {'rest'}), ('p', {'pass1'}), ('p', {'pass2'}), ('p', {'pass3'}), ('d', {'rest'}), ('b', {'box1'}), ('b', {'rest'}), ('c', {'done'})]
+==-->ndfa.process(ndfa2,'start','e;e;e;b;p;p;d;c'.split(';'))-->['start', ('e', {'engine'}), ('e', {'engine', 'rest'}), ('e', {'engine', 'rest'}), ('b', {'box1'}), ('p', set())]
+c-->ndfa3 = {'last': {}, '1': {'a': {'1', '2'}}, '3': {'d': {'last', 'start'}}, 'start': {'a': {'1', '2'}, 'b': {'2'}, 'c': {'3'}}, '2': {'c': {'3'}}}
+==-->ndfa.process(ndfa3,'start','c;d;a;a;c;d;b;c;d'.split(';'))-->['start', ('c', {'3'}), ('d', {'last', 'start'}), ('a', {'1', '2'}), ('a', {'1', '2'}), ('c', {'3'}), ('d', {'last', 'start'}), ('b', {'2'}), ('c', {'3'}), ('d', {'last', 'start'})]
+==-->ndfa.process(ndfa3,'start','a;a;b;c;d'.split(';'))-->['start', ('a', {'1', '2'}), ('a', {'1', '2'}), ('b', set())]
+# Test interpret
+c-->i = ['start', ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'}), ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'})]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = 1; new possible states = ['start']\n  Input = 0; new possible states = ['near', 'start']\n  Input = 1; new possible states = ['end', 'start']\n  Input = 1; new possible states = ['start']\n  Input = 0; new possible states = ['near', 'start']\n  Input = 1; new possible states = ['end', 'start']\nStop state(s) = ['end', 'start']\n"
+c-->i = ['start', ('1', {'start'}), ('0', {'start', 'near'}), ('1', {'end', 'start'}), ('1', {'start'}), ('0', {'start', 'near'}), ('0', {'start', 'near'})]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = 1; new possible states = ['start']\n  Input = 0; new possible states = ['near', 'start']\n  Input = 1; new possible states = ['end', 'start']\n  Input = 1; new possible states = ['start']\n  Input = 0; new possible states = ['near', 'start']\n  Input = 0; new possible states = ['near', 'start']\nStop state(s) = ['near', 'start']\n"
+c-->i = ['start', ('e', {'engine'}), ('e', {'engine', 'rest'}), ('e', {'engine', 'rest'}), ('b', {'box1'}), ('b', {'rest'}), ('p', {'pass1'}), ('d', {'rest'}), ('p', {'pass1'}), ('p', {'pass2'}), ('p', {'pass3'}), ('d', {'rest'}), ('b', {'box1'}), ('b', {'rest'}), ('c', {'done'})]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = e; new possible states = ['engine']\n  Input = e; new possible states = ['engine', 'rest']\n  Input = e; new possible states = ['engine', 'rest']\n  Input = b; new possible states = ['box1']\n  Input = b; new possible states = ['rest']\n  Input = p; new possible states = ['pass1']\n  Input = d; new possible states = ['rest']\n  Input = p; new possible states = ['pass1']\n  Input = p; new possible states = ['pass2']\n  Input = p; new possible states = ['pass3']\n  Input = d; new possible states = ['rest']\n  Input = b; new possible states = ['box1']\n  Input = b; new possible states = ['rest']\n  Input = c; new possible states = ['done']\nStop state(s) = ['done']\n"
+c-->i = ['start', ('e', {'engine'}), ('e', {'engine', 'rest'}), ('e', {'engine', 'rest'}), ('b', {'box1'}), ('p', set())]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = e; new possible states = ['engine']\n  Input = e; new possible states = ['engine', 'rest']\n  Input = e; new possible states = ['engine', 'rest']\n  Input = b; new possible states = ['box1']\n  Input = p; new possible states = []\nStop state(s) = []\n"
+c-->i = ['start', ('c', {'3'}), ('d', {'last', 'start'}), ('a', {'1', '2'}), ('a', {'1', '2'}), ('c', {'3'}), ('d', {'last', 'start'}), ('b', {'2'}), ('c', {'3'}), ('d', {'last', 'start'})]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = c; new possible states = ['3']\n  Input = d; new possible states = ['last', 'start']\n  Input = a; new possible states = ['1', '2']\n  Input = a; new possible states = ['1', '2']\n  Input = c; new possible states = ['3']\n  Input = d; new possible states = ['last', 'start']\n  Input = b; new possible states = ['2']\n  Input = c; new possible states = ['3']\n  Input = d; new possible states = ['last', 'start']\nStop state(s) = ['last', 'start']\n"
+c-->i = ['start', ('a', {'1', '2'}), ('a', {'1', '2'}), ('b', set())]
+==-->ndfa.interpret(i)-->"Start state = start\n  Input = a; new possible states = ['1', '2']\n  Input = a; new possible states = ['1', '2']\n  Input = b; new possible states = []\nStop state(s) = []\n"

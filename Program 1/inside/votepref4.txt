@@ -1,0 +1,15 @@
+a1;u;w;x;y;z000
+a2;u;w;x;y;z000
+a3;u;w;x;y;z000
+a4;u;w;x;y;z000
+a5;u;w;x;y;z000
+b1;w;x;u;y;z000
+b2;w;x;u;y;z000
+b3;w;x;u;y;z000
+b4;w;x;u;y;z000
+c1;x;u;w;y;z000
+c2;x;u;w;y;z000
+c3;x;u;w;y;z000
+d1;y;x;w;u;z000
+d2;y;x;w;u;z000
+e;z000;u;w;x;y

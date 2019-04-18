@@ -1,0 +1,33 @@
+# Setup
+c-->from imp import reload
+c-->import fa
+c-->reload(fa)
+# Test read_fa
+c-->fa1 = fa.read_fa(open('faparity.txt'))
+==-->fa1-->{'odd': {'1': 'even', '0': 'odd'}, 'even': {'1': 'odd', '0': 'even'}}
+c-->fa2 = fa.read_fa(open('fadivisibleby3.txt'))
+==-->fa2-->{'rem2': {'4': 'rem0', '1': 'rem0', '2': 'rem1', '9': 'rem2', '7': 'rem0', '6': 'rem2', '5': 'rem1', '0': 'rem2', '8': 'rem1', '3': 'rem2'}, 'rem1': {'4': 'rem2', '1': 'rem2', '2': 'rem0', '9': 'rem1', '7': 'rem2', '6': 'rem1', '5': 'rem0', '0': 'rem1', '8': 'rem0', '3': 'rem1'}, 'rem0': {'4': 'rem1', '1': 'rem1', '2': 'rem2', '9': 'rem0', '7': 'rem1', '6': 'rem0', '5': 'rem2', '0': 'rem0', '8': 'rem2', '3': 'rem0'}}
+# Test fa_as_str
+c-->fa1 = {'odd': {'1': 'even', '0': 'odd'}, 'even': {'1': 'odd', '0': 'even'}}
+e-->repr(fa.fa_as_str(fa1))-->"  even transitions: [('0', 'even'), ('1', 'odd')]\n  odd transitions: [('0', 'odd'), ('1', 'even')]\n"
+c-->fa2 = {'rem2': {'4': 'rem0', '1': 'rem0', '2': 'rem1', '9': 'rem2', '7': 'rem0', '6': 'rem2', '5': 'rem1', '0': 'rem2', '8': 'rem1', '3': 'rem2'}, 'rem1': {'4': 'rem2', '1': 'rem2', '2': 'rem0', '9': 'rem1', '7': 'rem2', '6': 'rem1', '5': 'rem0', '0': 'rem1', '8': 'rem0', '3': 'rem1'}, 'rem0': {'4': 'rem1', '1': 'rem1', '2': 'rem2', '9': 'rem0', '7': 'rem1', '6': 'rem0', '5': 'rem2', '0': 'rem0', '8': 'rem2', '3': 'rem0'}}
+e-->repr(fa.fa_as_str(fa2))-->"  rem0 transitions: [('0', 'rem0'), ('1', 'rem1'), ('2', 'rem2'), ('3', 'rem0'), ('4', 'rem1'), ('5', 'rem2'), ('6', 'rem0'), ('7', 'rem1'), ('8', 'rem2'), ('9', 'rem0')]\n  rem1 transitions: [('0', 'rem1'), ('1', 'rem2'), ('2', 'rem0'), ('3', 'rem1'), ('4', 'rem2'), ('5', 'rem0'), ('6', 'rem1'), ('7', 'rem2'), ('8', 'rem0'), ('9', 'rem1')]\n  rem2 transitions: [('0', 'rem2'), ('1', 'rem0'), ('2', 'rem1'), ('3', 'rem2'), ('4', 'rem0'), ('5', 'rem1'), ('6', 'rem2'), ('7', 'rem0'), ('8', 'rem1'), ('9', 'rem2')]\n"
+# Test process
+c-->fa1 = {'odd': {'1': 'even', '0': 'odd'}, 'even': {'1': 'odd', '0': 'even'}}
+e-->fa.process(fa1,'even','1;0;1;1;0;1'.split(';'))-->['even', ('1', 'odd'), ('0', 'odd'), ('1', 'even'), ('1', 'odd'), ('0', 'odd'), ('1', 'even')]
+e-->fa.process(fa1,'even','1;0;1;1;0;x'.split(';'))-->['even', ('1', 'odd'), ('0', 'odd'), ('1', 'even'), ('1', 'odd'), ('0', 'odd'), ('x', None)]
+e-->fa.process(fa1,'odd','1;0;1;1;0;1'.split(';'))-->['odd', ('1', 'even'), ('0', 'even'), ('1', 'odd'), ('1', 'even'), ('0', 'even'), ('1', 'odd')]
+c-->fa2 = {'rem2': {'4': 'rem0', '1': 'rem0', '2': 'rem1', '9': 'rem2', '7': 'rem0', '6': 'rem2', '5': 'rem1', '0': 'rem2', '8': 'rem1', '3': 'rem2'}, 'rem1': {'4': 'rem2', '1': 'rem2', '2': 'rem0', '9': 'rem1', '7': 'rem2', '6': 'rem1', '5': 'rem0', '0': 'rem1', '8': 'rem0', '3': 'rem1'}, 'rem0': {'4': 'rem1', '1': 'rem1', '2': 'rem2', '9': 'rem0', '7': 'rem1', '6': 'rem0', '5': 'rem2', '0': 'rem0', '8': 'rem2', '3': 'rem0'}}
+e-->fa.process(fa2,'rem0','1;2;4;3;5;7;1;1'.split(';'))-->['rem0', ('1', 'rem1'), ('2', 'rem0'), ('4', 'rem1'), ('3', 'rem1'), ('5', 'rem0'), ('7', 'rem1'), ('1', 'rem2'), ('1', 'rem0')]
+e-->fa.process(fa2,'rem0','8;2;3'.split(';'))-->['rem0', ('8', 'rem2'), ('2', 'rem1'), ('3', 'rem1')]
+# Test interpret
+c-->i = ['even', ('1', 'odd'), ('0', 'odd'), ('1', 'even'), ('1', 'odd'), ('0', 'odd'), ('1', 'even')]
+==-->fa.interpret(i)-->"Start state = even\n  Input = 1; new state = odd\n  Input = 0; new state = odd\n  Input = 1; new state = even\n  Input = 1; new state = odd\n  Input = 0; new state = odd\n  Input = 1; new state = even\nStop state = even\n"
+c-->i = ['even', ('1', 'odd'), ('0', 'odd'), ('1', 'even'), ('1', 'odd'), ('0', 'odd'), ('x', None)]
+==-->fa.interpret(i)-->"Start state = even\n  Input = 1; new state = odd\n  Input = 0; new state = odd\n  Input = 1; new state = even\n  Input = 1; new state = odd\n  Input = 0; new state = odd\n  Input = x; illegal input: simulation terminated\nStop state = None\n"
+c-->i = ['odd', ('1', 'even'), ('0', 'even'), ('1', 'odd'), ('1', 'even'), ('0', 'even'), ('1', 'odd')]
+==-->fa.interpret(i)-->"Start state = odd\n  Input = 1; new state = even\n  Input = 0; new state = even\n  Input = 1; new state = odd\n  Input = 1; new state = even\n  Input = 0; new state = even\n  Input = 1; new state = odd\nStop state = odd\n"
+c-->i = ['rem0', ('1', 'rem1'), ('2', 'rem0'), ('4', 'rem1'), ('3', 'rem1'), ('5', 'rem0'), ('7', 'rem1'), ('1', 'rem2'), ('1', 'rem0')]
+==-->fa.interpret(i)-->"Start state = rem0\n  Input = 1; new state = rem1\n  Input = 2; new state = rem0\n  Input = 4; new state = rem1\n  Input = 3; new state = rem1\n  Input = 5; new state = rem0\n  Input = 7; new state = rem1\n  Input = 1; new state = rem2\n  Input = 1; new state = rem0\nStop state = rem0\n"
+c-->i = ['rem0', ('8', 'rem2'), ('2', 'rem1'), ('3', 'rem1')]
+==-->fa.interpret(i)-->"Start state = rem0\n  Input = 8; new state = rem2\n  Input = 2; new state = rem1\n  Input = 3; new state = rem1\nStop state = rem1\n"

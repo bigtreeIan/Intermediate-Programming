@@ -1,0 +1,33 @@
+Programming Assignment #0, Part C
+
+Run the craps program controlled by the Debugger Perspective as specified in the
+programming assignment, to answer each the following questions.
+
+Answer each question briefly, with the required numbers (no words).
+
+1. What number game is the first to be lost on one throw
+   (e.g., a throw of 2, 3, or 12)? There is one answer to this question.
+Answer:13
+
+2. What are all the dice throws in the seventh game
+   (list them in the order thrown)?
+Answer:8, 10, 6, 6, 6, 7
+
+3. What number game is the first to be won on a throw of 7? 11?
+   There are two answers to these questions.
+Answer:1, 5
+
+4. What number game is the first to be lost on a throw of 2? 3? 12?
+   There are three answers to these questions.
+Answer:85, 13, 19
+
+5. What number game is the first to be won by making a point of 5? 10?
+Answer:3, 80
+
+6. What are all the dice throws in the 101st game
+   (list them in the order thrown)?
+
+Answer:10, 8, 10
+
+7. In what game number does the 712th win occur?
+Answer:1495

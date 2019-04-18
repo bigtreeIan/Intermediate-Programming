@@ -1,0 +1,72 @@
+# Setup
+c-->from imp import reload
+c-->import google
+c-->reload(google)
+c-->g = google # abbreviation
+c-->from collections import defaultdict
+# Test all_prefixes
+==-->g.all_prefixes(('a',))-->{('a',)}
+==-->g.all_prefixes(('a','b'))-->{('a',), ('a','b')}
+==-->g.all_prefixes(('a','b','c'))-->{('a',), ('a','b'), ('a','b','c')}
+==-->g.all_prefixes(('uci','law','school'))-->{('uci',), ('uci','law'), ('uci','law','school')}
+==-->g.all_prefixes(('uci','medical','center'))-->{('uci',), ('uci','medical'), ('uci','medical','center')}
+# Test add_query
+c-->p,q = defaultdict(set), defaultdict(int)
+c-->g.add_query(p,q,('u','m','c'))
+==-->p-->{('u', 'm'): {('u', 'm', 'c')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u',): {('u', 'm', 'c')}}
+==-->q-->{('u', 'm', 'c'): 1} 
+c-->g.add_query(p,q,('u','l'))
+==-->p-->{('u', 'm'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u',): {('u', 'l'), ('u', 'm', 'c')}}
+==-->q-->{('u', 'l'): 1, ('u', 'm', 'c'): 1} 
+c-->g.add_query(p,q,('u','w','s'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c')}}
+==-->q-->{('u', 'w', 's'): 1, ('u', 'l'): 1, ('u', 'm', 'c'): 1} 
+c-->g.add_query(p,q,('u','l'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c')}}
+==-->q-->{('u', 'w', 's'): 1, ('u', 'l'): 2, ('u', 'm', 'c'): 1} 
+c-->g.add_query(p,q,('u','w','s'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c')}}
+==-->q-->{('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1} 
+c-->g.add_query(p,q,('u','w','b'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's'), ('u', 'w', 'b')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c'), ('u', 'w', 'b')}, ('u', 'w', 'b'): {('u', 'w', 'b')}}
+==-->q-->{('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 1} 
+c-->g.add_query(p,q,('u','w','b'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's'), ('u', 'w', 'b')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c'), ('u', 'w', 'b')}, ('u', 'w', 'b'): {('u', 'w', 'b')}}
+==-->q-->{('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 2} 
+c-->g.add_query(p,q,('u','w','b'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's'), ('u', 'w', 'b')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c'), ('u', 'w', 'b')}, ('u', 'w', 'b'): {('u', 'w', 'b')}}
+==-->q-->{('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 3} 
+# Test read_queries
+c-->p,q = g.read_queries(open('googleq0.txt'))
+==-->p-->{('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's'), ('u', 'w', 'b')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c'), ('u', 'w', 'b')}, ('u', 'w', 'b'): {('u', 'w', 'b')}}
+==-->q-->{('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 3} 
+c-->p,q = g.read_queries(open('googleq1.txt'))
+==-->p-->{('uci', 'law'): {('uci', 'law')}, ('uci',): {('uci', 'law'), ('uci', "men's", 'soccer'), ('uci', "men's", 'basketball'), ('uci', 'medical', 'school')}, ('uci', "men's", 'basketball'): {('uci', "men's", 'basketball')}, ('uci', "men's", 'soccer'): {('uci', "men's", 'soccer')}, ('uci', "men's"): {('uci', "men's", 'soccer'), ('uci', "men's", 'basketball')}, ('uci', 'medical'): {('uci', 'medical', 'school')}, ('uci', 'medical', 'school'): {('uci', 'medical', 'school')}}
+==-->q-->{('uci', 'law'): 2, ('uci', "men's", 'soccer'): 2, ('uci', 'medical', 'school'): 1, ('uci', "men's", 'basketball'): 3} 
+c-->p,q = g.read_queries(open('googleq2.txt'))
+==-->p-->{('uci', 'web', 'computer', 'science'): {('uci', 'web', 'computer', 'science')}, ('uci', 'web', 'catalog'): {('uci', 'web', 'catalog')}, ('uci', 'web', 'grades'): {('uci', 'web', 'grades')}, ('uci',): {('uci', 'web', 'computer', 'science'), ('uci', 'medical', 'school'), ('uci', 'web', 'catalog'), ('uci', 'web', 'schedule'), ('uci', 'web', 'grades'), ('uci', "men's", 'soccer'), ('uci', "men's", 'basketball'), ('uci', 'computer', 'science'), ('uci', 'computer', 'labs'), ('uci', 'law')}, ('uci', "men's", 'basketball'): {('uci', "men's", 'basketball')}, ('uci', 'computer', 'science'): {('uci', 'computer', 'science')}, ('uci', 'web', 'computer'): {('uci', 'web', 'computer', 'science')}, ('uci', 'law'): {('uci', 'law')}, ('uci', "men's"): {('uci', "men's", 'soccer'), ('uci', "men's", 'basketball')}, ('uci', 'computer'): {('uci', 'computer', 'science'), ('uci', 'computer', 'labs')}, ('uci', 'medical', 'school'): {('uci', 'medical', 'school')}, ('uci', 'web', 'schedule'): {('uci', 'web', 'schedule')}, ('uci', "men's", 'soccer'): {('uci', "men's", 'soccer')}, ('uci', 'web'): {('uci', 'web', 'grades'), ('uci', 'web', 'catalog'), ('uci', 'web', 'computer', 'science'), ('uci', 'web', 'schedule')}, ('uci', 'computer', 'labs'): {('uci', 'computer', 'labs')}, ('uci', 'medical'): {('uci', 'medical', 'school')}}
+==-->q-->{('uci', 'web', 'computer', 'science'): 1, ('uci', 'medical', 'school'): 1, ('uci', 'web', 'catalog'): 2, ('uci', 'web', 'schedule'): 2, ('uci', 'web', 'grades'): 1, ('uci', "men's", 'soccer'): 2, ('uci', "men's", 'basketball'): 3, ('uci', 'computer', 'science'): 1, ('uci', 'computer', 'labs'): 1, ('uci', 'law'): 2} 
+# Test dict_as_str
+c-->d = defaultdict(a=5, ab=2, am=5, ax=4, abc=3, abz=6, aza=1, lmnop=3)
+e-->repr(g.dict_as_str(d,lambda x : (len(x),x)))-->'  a -> 5\n  ab -> 2\n  am -> 5\n  ax -> 4\n  abc -> 3\n  abz -> 6\n  aza -> 1\n  lmnop -> 3\n' 
+e-->repr(g.dict_as_str(d,lambda x : (len(x),x), True))-->'  lmnop -> 3\n  aza -> 1\n  abz -> 6\n  abc -> 3\n  ax -> 4\n  am -> 5\n  ab -> 2\n  a -> 5\n'
+e-->repr(g.dict_as_str(d,lambda x : (-d[x],x)))-->'  abz -> 6\n  a -> 5\n  am -> 5\n  ax -> 4\n  abc -> 3\n  lmnop -> 3\n  ab -> 2\n  aza -> 1\n'
+c-->q = {('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 3} 
+e-->repr(g.dict_as_str(q,lambda x : (-q[x],x)))-->"  ('u', 'w', 'b') -> 3\n  ('u', 'l') -> 2\n  ('u', 'w', 's') -> 2\n  ('u', 'm', 'c') -> 1\n"
+c-->q = {('uci', 'law'): 2, ('uci', "men's", 'soccer'): 2, ('uci', 'medical', 'school'): 1, ('uci', "men's", 'basketball'): 3} 
+e-->repr(g.dict_as_str(q,lambda x : (-q[x],x)))-->'  (\'uci\', "men\'s", \'basketball\') -> 3\n  (\'uci\', \'law\') -> 2\n  (\'uci\', "men\'s", \'soccer\') -> 2\n  (\'uci\', \'medical\', \'school\') -> 1\n'
+c-->q = {('uci', 'web', 'computer', 'science'): 1, ('uci', 'medical', 'school'): 1, ('uci', 'web', 'catalog'): 2, ('uci', 'web', 'schedule'): 2, ('uci', 'web', 'grades'): 1, ('uci', "men's", 'soccer'): 2, ('uci', "men's", 'basketball'): 3, ('uci', 'computer', 'science'): 1, ('uci', 'computer', 'labs'): 1, ('uci', 'law'): 2} 
+e-->repr(g.dict_as_str(q,lambda x : (-q[x],x)))-->'  (\'uci\', "men\'s", \'basketball\') -> 3\n  (\'uci\', \'law\') -> 2\n  (\'uci\', "men\'s", \'soccer\') -> 2\n  (\'uci\', \'web\', \'catalog\') -> 2\n  (\'uci\', \'web\', \'schedule\') -> 2\n  (\'uci\', \'computer\', \'labs\') -> 1\n  (\'uci\', \'computer\', \'science\') -> 1\n  (\'uci\', \'medical\', \'school\') -> 1\n  (\'uci\', \'web\', \'computer\', \'science\') -> 1\n  (\'uci\', \'web\', \'grades\') -> 1\n'
+# Test top_n
+c-->p = {('u', 'w', 's'): {('u', 'w', 's')}, ('u', 'w'): {('u', 'w', 's'), ('u', 'w', 'b')}, ('u', 'm', 'c'): {('u', 'm', 'c')}, ('u', 'l'): {('u', 'l')}, ('u', 'm'): {('u', 'm', 'c')}, ('u',): {('u', 'w', 's'), ('u', 'l'), ('u', 'm', 'c'), ('u', 'w', 'b')}, ('u', 'w', 'b'): {('u', 'w', 'b')}}
+c-->q = {('u', 'w', 's'): 2, ('u', 'l'): 2, ('u', 'm', 'c'): 1, ('u', 'w', 'b'): 3} 
+e-->g.top_n(('u',),1,p,q)-->[('u', 'w', 'b')]
+e-->g.top_n(('u',),2,p,q)-->[('u', 'w', 'b'), ('u', 'l')]
+e-->g.top_n(('u',),3,p,q)-->[('u', 'w', 'b'), ('u', 'l'), ('u', 'w', 's')]
+e-->g.top_n(('u',),4,p,q)-->[('u', 'w', 'b'), ('u', 'l'), ('u', 'w', 's'), ('u', 'm', 'c')]
+e-->g.top_n(('u',),5,p,q)-->[('u', 'w', 'b'), ('u', 'l'), ('u', 'w', 's'), ('u', 'm', 'c')]
+e-->g.top_n(('u','w'),1,p,q)-->[('u', 'w', 'b')]
+e-->g.top_n(('u','w'),2,p,q)-->[('u', 'w', 'b'), ('u', 'w', 's')]
+e-->g.top_n(('u','w'),3,p,q)-->[('u', 'w', 'b'), ('u', 'w', 's')]
+e-->g.top_n(('x',),3,p,q)-->[]
+e-->g.top_n(('x','y'),3,p,q)-->[]
